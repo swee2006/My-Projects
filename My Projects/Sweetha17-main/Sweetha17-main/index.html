@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspirations & Role Models</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad390, #f6d365);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      padding: 20px;
+      background: #fff3cd;
+      border-bottom: 3px solid #ff9800;
+    }
+    header h1 {
+      margin: 10px 0;
+      color: #d35400;
+    }
+    header p {
+      font-style: italic;
+      color: #555;
+    }
+
+    /* Cards Layout */
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+    .card {
+      background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+      color: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+    }
+    .card.selected {
+      border: 4px solid #ffeb3b;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Footer */
+    footer {
+      padding: 15px;
+      background: #fff3cd;
+      border-top: 3px solid #ff9800;
+    }
+    footer a {
+      color: #e67e22;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌟 Inspirations & Role Models 🌟</h1>
+    <p>Click on a card to choose your role model</p>
+  </header>
+
+  <main>
+    <div class="card" onclick="selectRoleModel(this, 'APJ Abdul Kalam')">
+      <h2>APJ Abdul Kalam</h2>
+      <p>"Dream, dream, dream. Dreams transform into thoughts and thoughts result in action."</p>
+    </div>
+
+    <div class="card" onclick="selectRoleModel(this, 'Mahatma Gandhi')">
+      <h2>Mahatma Gandhi</h2>
+      <p>"Be the change that you wish to see in the world."</p>
+    </div>
+
+    <div class="card" onclick="selectRoleModel(this, 'Mother Teresa')">
+      <h2>Mother Teresa</h2>
+      <p>"Spread love everywhere you go. Let no one ever come to you without leaving happier."</p>
+    </div>
+
+    <div class="card" onclick="selectRoleModel(this, 'Albert Einstein')">
+      <h2>Albert Einstein</h2>
+      <p>"Imagination is more important than knowledge."</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Created with ❤️ by Sweetha</p>
+  </footer>
+
+  <script>
+    function selectRoleModel(card, name) {
+      // Remove highlight from all cards
+      let cards = document.querySelectorAll(".card");
+      cards.forEach(c => c.classList.remove("selected"));
+
+      // Highlight selected card
+      card.classList.add("selected");
+
+      // Show alert message
+      alert("You selected " + name + " as your Role Model!");
+    }
+  </script>
+</body>
+</html>

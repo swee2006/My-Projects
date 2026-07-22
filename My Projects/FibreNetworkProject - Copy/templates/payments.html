@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Nila Cable Network</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1419;
+            color: #e0e0e0;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        header h1 { font-size: 24px; }
+        .container { display: flex; min-height: calc(100vh - 90px); }
+        .sidebar {
+            width: 250px;
+            background: #1a1f2e;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #888;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+        .main-content { flex: 1; padding: 30px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .page-header h2 {
+            font-size: 32px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .btn-add {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .btn-add:hover { opacity: 0.9; }
+        .btn-accent {
+            background: #10b981;
+        }
+        .btn-soft {
+            background: #764ba2;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+        }
+        th { background: #1a1f2e; }
+        tr:hover { background: rgba(102,126,234,0.08); }
+        .actions form { display: inline; }
+        .actions button {
+            border: none;
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.status-paid { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge.status-needs-verification { background: rgba(250, 204, 21, 0.2); color: #facc15; }
+        .badge.status-unidentified-payment { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .btn-verify {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; display: flex; overflow-x: auto; }
+            .main-content { padding: 20px; }
+            th, td { padding: 10px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>NILA CABLE FIBRE NETWORKS</h1>
+        <button onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: 600;">Logout</button>
+    </header>
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item" onclick="navigateTo('/dashboard')"><span>📊</span><span>Dashboard</span></div>
+            <div class="nav-item" onclick="navigateTo('/customers')"><span>👥</span><span>Customers</span></div>
+            <div class="nav-item active" onclick="navigateTo('/payments')"><span>💳</span><span>Payments</span></div>
+            <div class="nav-item" onclick="navigateTo('/reports')"><span>📈</span><span>Reports</span></div>
+            <div class="nav-item" onclick="navigateTo('/settings')"><span>⚙️</span><span>Settings</span></div>
+        </div>
+        <div class="main-content">
+            <div class="page-header">
+                <h2>Payments</h2>
+                <div>
+                    <a href="/add-payment" class="btn-add">+ Record Payment</a>
+                    <a href="/upload_statement" class="btn-add btn-soft" style="margin-left: 8px;">📄 Upload Statement</a>
+                    <a href="/payment_history" class="btn-add btn-accent" style="margin-left: 8px;">🗂️ History</a>
+                </div>
+            </div>
+            {% if payments %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Txn ID</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>Amount (₹)</th>
+                            <th>Month</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in payments %}
+                        <tr>
+                            <td>{{ p['txn_id'] or '—' }}</td>
+                            <td>{{ p['name'] }}</td>
+                            <td>{{ p['phone'] or '—' }}</td>
+                            <td>{{ p['amount'] }}</td>
+                            <td>{{ p['month'] }}</td>
+                            <td><span class="badge status-{{ p['status']|lower|replace(' ', '-') }}">{{ p['status'] }}</span></td>
+                            <td>{{ p['date'] }}</td>
+                            <td class="actions">
+                                {% if p['status'] == 'Needs Verification' %}
+                                <form method="POST" action="/verify-payment/{{ p['payment_id'] }}" style="display:inline; margin-right:6px;" onsubmit="return confirm('Mark this payment as verified?');">
+                                    <button type="submit" class="btn-verify" title="Mark this payment as verified">✔ Verify</button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="/delete-payment/{{ p['payment_id'] }}" onsubmit="return confirm('Delete this payment?');" style="display:inline;">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No payments recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function navigateTo(page) { window.location.href = page; }
+        function logout() { if (confirm('Are you sure you want to logout?')) window.location.href = '/'; }
+    </script>
+</body>
+</html>

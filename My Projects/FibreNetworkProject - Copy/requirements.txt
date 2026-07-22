@@ -1,0 +1,8 @@
+Flask
+pandas
+pdfplumber
+pdf2image
+pytesseract
+Pillow
+openpyxl
+python-dotenv

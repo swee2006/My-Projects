@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Customers - Nila Cable Network</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1419;
+            color: #e0e0e0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-left h1 { font-size: 24px; }
+
+        .header-right button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .header-right button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 90px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #1a1f2e;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #888;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            font-size: 32px;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-wrapper {
+            background: linear-gradient(135deg, #1a1f2e 0%, #25293b 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(102, 126, 234, 0.15);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            color: #ccc;
+        }
+
+        tbody tr:hover {
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.active { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge.inactive { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #764ba2;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; display: flex; overflow-x: auto; }
+            .main-content { padding: 20px; }
+            .page-header { flex-direction: column; gap: 15px; }
+            th, td { padding: 10px; font-size: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <h1>NILA CABLE FIBRE NETWORKS</h1>
+        </div>
+        <div class="header-right">
+            <button onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-item" onclick="navigateTo('/dashboard')">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item active" onclick="navigateTo('/customers')">
+                <span>👥</span>
+                <span>Customers</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('/payments')">
+                <span>💳</span>
+                <span>Payments</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('/reports')">
+                <span>📈</span>
+                <span>Reports</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('/settings')">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h2>Customers <span style="font-size:14px;color:#aaa;">({{ selected_month }})</span></h2>
+                <a href="/add-customer" class="btn-add">+ Add Customer</a>
+                <a href="/upload-customers" class="btn-add" style="background:#764ba2; margin-left:10px;">📤 Import XLSX</a>
+            </div>
+
+            {% if customers %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Box ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>UPI ID</th>
+                            <th>Plan Amount</th>
+                            <th>Paid Amount</th>
+                            <th>Paid Date</th>
+                            <th>Connection</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td><strong>{{ customer['box_id'] }}</strong></td>
+                            <td>{{ customer['name'] }}</td>
+                            <td>{{ customer['phone'] }}</td>
+                            <td>{{ customer.get('upi_id','—') }}</td>
+                            <td>{{ "%.2f"|format(customer.get('plan_amount') or customer['subscription']) }}</td>
+                            <td>{{ "%.2f"|format(customer['payment_amount']) if customer['payment_amount'] else '—' }}</td>
+                            <td>{{ customer['payment_date'] or '—' }}</td>
+                            <td>
+                                <span class="badge {% if customer['status'] == 'active' %}active{% else %}inactive{% endif %}">
+                                    {{ customer['status']|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if customer['paid_status'] == 'paid' %}active{% else %}inactive{% endif %}">
+                                    {{ customer['paid_status']|upper }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/edit-customer/{{ customer['id'] }}" class="btn-small btn-edit">Edit</a>
+                                    <form method="POST" action="/delete-customer/{{ customer['id'] }}" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                        <button type="submit" class="btn-small btn-delete">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h3>No Customers Found</h3>
+                <p>Start by adding a new customer</p>
+                <a href="/add-customer" class="btn-add">+ Add First Customer</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>

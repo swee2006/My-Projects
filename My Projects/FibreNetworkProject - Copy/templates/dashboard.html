@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Nila Cable Network</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0f1419;
+    color: #e0e0e0;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Moon and Stars */
+.moon {
+    position: absolute;
+    top: 40px; right: 80px;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at 30% 30%, #fff, #ccc 60%, #0f1419 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px 5px #fff;
+    animation: floatMoon 6s ease-in-out infinite alternate;
+    z-index: 1;
+}
+@keyframes floatMoon { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
+
+.star { position: absolute; width: 3px; height: 3px; background: #fff; border-radius: 50%; box-shadow: 0 0 5px #fff; animation: twinkle 2s infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0.3; transform: scale(1); } }
+
+header {
+    position: relative; z-index: 2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; padding: 20px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.header-left { display: flex; align-items: center; gap: 15px; }
+.logo-small { width:60px; height:60px; background: none; border-radius: 0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.logo-small img { width:100%; height:100%; object-fit:cover; object-position:center; }
+.header-left h1 { display:block; font-size:24px; margin-left:12px; }
+.header-right { display:flex; align-items:center; gap:20px; }
+.user-info { text-align:right; } .user-info p { font-size:13px; opacity:0.9; }
+.logout-btn { background: rgba(255,255,255,0.2); color:white; border:2px solid white; padding:8px 20px; border-radius:5px; cursor:pointer; font-weight:600; transition: all 0.3s; }
+.logout-btn:hover { background:white; color:#667eea; }
+
+.container { display:flex; min-height:calc(100vh-90px); position:relative; z-index:2; }
+.sidebar { width:250px; background:#1a1f2e; padding:20px 0; box-shadow:2px 0 10px rgba(0,0,0,0.5); }
+.nav-item { padding:15px 20px; cursor:pointer; display:flex; align-items:center; gap:12px; color:#888; transition: all 0.3s; border-left:4px solid transparent; }
+.nav-item:hover { background: rgba(102,126,234,0.1); color:#667eea; }
+.nav-item.active { background: rgba(102,126,234,0.15); color:#667eea; border-left-color:#667eea; }
+
+.main-content { flex:1; padding:30px; }
+.page-header h2 { font-size:32px; color:#fff; margin-bottom:30px; font-weight:700; }
+
+.stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:20px; margin-bottom:30px; }
+
+.stat-card {
+    background: linear-gradient(135deg,#1a1f2e 0%,#25293b 100%);
+    padding:25px; border-radius:12px; box-shadow:0 0 15px rgba(102,126,234,0.3);
+    border:1px solid rgba(102,126,234,0.2); transition: all 0.3s; text-align:center;
+}
+.stat-card:hover { transform:translateY(-5px); box-shadow:0 0 25px rgba(102,126,234,0.6); border-color: rgba(102,126,234,0.5); }
+.stat-card .label { color:#888; font-size:12px; font-weight:600; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
+.stat-card .value { font-size:36px; font-weight:700; color:#667eea; text-shadow:0 0 10px #667eea; }
+.stat-card .subtext { color:#aaa; font-size:12px; margin-top:8px; }
+.stat-card.paid .value { color:#10b981; text-shadow:0 0 10px #10b981; }
+.stat-card.unpaid .value { color:#ef4444; text-shadow:0 0 10px #ef4444; }
+.stat-card.collection .value { color:#f59e0b; text-shadow:0 0 10px #f59e0b; }
+.stat-icon { font-size:32px; margin-bottom:10px; }
+
+.charts-container { display:grid; grid-template-columns: repeat(auto-fit, minmax(400px,1fr)); gap:20px; margin-top:30px; }
+.chart-box { background: linear-gradient(135deg,#1a1f2e 0%,#25293b 100%); padding:25px; border-radius:12px; box-shadow:0 0 15px rgba(102,126,234,0.3); border:1px solid rgba(102,126,234,0.2); }
+.chart-box h3 { color:#fff; margin-bottom:20px; font-size:18px; }
+canvas { max-width:100%; }
+
+@media (max-width:768px) {
+    .container { flex-direction:column; }
+    .sidebar { width:100%; display:flex; overflow-x:auto; padding:0; }
+    .nav-item { white-space:nowrap; flex-shrink:0; }
+    .main-content { padding:20px; }
+    .charts-container { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Background Moon and Stars -->
+<div class="moon"></div>
+<div class="star" style="top:100px; left:50px;"></div>
+<div class="star" style="top:200px; left:180px;"></div>
+<div class="star" style="top:50px; left:300px;"></div>
+<div class="star" style="top:150px; left:400px;"></div>
+<div class="star" style="top:250px; left:500px;"></div>
+
+<header>
+<div class="header-left"><div class="logo-small"><img src="{{ url_for('static', filename='nila_logo.png') }}" alt="Nila Cable logo"></div><h1>Nila Cable Fibre Network</h1></div>
+<div class="header-right"><div class="user-info"><p>Welcome, <strong>Admin</strong></p></div><button class="logout-btn" onclick="logout()">Logout</button></div>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="nav-item active" onclick="navigateTo('/dashboard')">📊 Dashboard</div>
+        <div class="nav-item" onclick="navigateTo('/customers')">👥 Customers</div>
+        <div class="nav-item" onclick="navigateTo('/payments')">💳 Payments</div>
+        <div class="nav-item" onclick="navigateTo('/reports')">📈 Reports</div>
+        <div class="nav-item" onclick="navigateTo('/settings')">⚙️ Settings</div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header"><h2>Dashboard</h2></div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card animate__animated animate__fadeInUp">
+                <div class="stat-icon">👥</div>
+                <div class="label">Total Customers</div>
+                <div class="value">{{ total_customers }}</div>
+                <div class="subtext">Active connections</div>
+            </div>
+
+            <div class="stat-card paid animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="stat-icon">✅</div>
+                <div class="label">Paid Customers</div>
+                <div class="value">{{ paid_customers }}</div>
+                <div class="subtext">{{ ((paid_customers/total_customers)*100)|int if total_customers>0 else 0 }}% payment rate</div>
+            </div>
+
+            <div class="stat-card unpaid animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="stat-icon">❌</div>
+                <div class="label">Unpaid Customers</div>
+                <div class="value">{{ unpaid_customers }}</div>
+                <div class="subtext">Pending payment</div>
+            </div>
+
+            <div class="stat-card collection animate__animated animate__fadeInUp animate__delay-3s">
+                <div class="stat-icon">💰</div>
+                <div class="label">Total Collection</div>
+                <div class="value">₹{{ collection }}</div>
+                <div class="subtext">This month</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-box">
+                <h3>Payment Status</h3>
+                <canvas id="paymentChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Weekly Collection</h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Customer Breakdown</h3>
+                <canvas id="breakdownChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Payment Trends</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* eslint-disable */
+// Jinja2 template variables will be replaced by Flask at runtime
+const paymentChart = new Chart(document.getElementById('paymentChart').getContext('2d'), {
+    type:'pie',
+    data:{ labels: {{ chart_labels|safe }}, datasets:[{ data: {{ chart_values|safe }}, backgroundColor:['#10b981','#ef4444'], borderColor:'#1a1f2e', borderWidth:2 }] },
+    options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#888', font:{size:12} } } } }
+});
+
+const weeklyChart = new Chart(document.getElementById('weeklyChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels: {{ week_labels|safe }}, datasets:[{ label:'Collection (₹)', data: {{ week_values|safe }}, backgroundColor:'#667eea', borderColor:'#667eea', borderWidth:1, borderRadius:5 }] },
+    options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#888' } } }, scales:{ y:{ ticks:{ color:'#666' }, grid:{ color:'#333' } }, x:{ ticks:{ color:'#666' }, grid:{ color:'#333' } } } }
+});
+
+const breakdownChart = new Chart(document.getElementById('breakdownChart').getContext('2d'), {
+    type:'doughnut',
+    data:{ labels: {{ breakdown_labels|safe }}, datasets:[{ data: {{ breakdown_values|safe }}, backgroundColor:['#667eea','#764ba2','#f5576c'], borderColor:'#1a1f2e', borderWidth:2 }] },
+    options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#888' } } } }
+});
+
+const trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type:'line',
+    data:{ labels: {{ trend_labels|safe }}, datasets:[{ label:'Payments', data: {{ trend_values|safe }}, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.1)', borderWidth:2, tension:0.4 }] },
+    options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#888' } } }, scales:{ y:{ ticks:{ color:'#666' }, grid:{ color:'#333' } }, x:{ ticks:{ color:'#666' }, grid:{ color:'#333' } } } }
+});
+
+function logout(){ if(confirm('Are you sure you want to logout?')) window.location.href='/'; }
+
+        function navigateTo(page) { window.location.href = page; }
+/* eslint-enable */
+</script>
+</body>
+</html>

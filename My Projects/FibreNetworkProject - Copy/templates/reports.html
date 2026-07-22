@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Nila Cable Network</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:#0f1419; color:#e0e0e0; }
+        header { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:20px 40px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 20px rgba(0,0,0,0.4); }
+        header h1{font-size:24px;}
+        .container{display:flex;min-height:calc(100vh-90px);}
+        .sidebar{width:250px;background:#1a1f2e;padding:20px 0;box-shadow:2px 0 10px rgba(0,0,0,0.5);}
+        .nav-item{padding:15px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;color:#888;transition:all 0.3s;border-left:4px solid transparent;}
+        .nav-item:hover{background:rgba(102,126,234,0.1);color:#667eea;}
+        .nav-item.active{background:rgba(102,126,234,0.15);color:#667eea;border-left-color:#667eea;}
+        .main-content{flex:1;padding:30px;}
+        .page-header h2{font-size:32px;color:#fff;margin-bottom:30px;font-weight:700;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;}
+        .stat-card{background:#1a1f2e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;}
+        .stat-card .label{font-size:12px;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+        .stat-card strong{font-size:28px;color:#fff;}
+        .section{margin-top:24px;background:#1a1f2e;border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,0.08);}
+        .section h3{margin-bottom:12px;font-size:20px;color:#fff;}
+        table{width:100%;border-collapse:collapse;margin-top:10px;}
+        th,td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:14px;}
+        th{background:rgba(255,255,255,0.03);text-align:left;}
+        .note{font-size:14px;color:#aaa;}
+        @media(max-width:768px){.container{flex-direction:column;}.sidebar{width:100%;display:flex;overflow-x:auto;}.main-content{padding:20px;}}    
+    </style>
+</head>
+<body>
+    <header>
+        <h1>NILA CABLE FIBRE NETWORKS</h1>
+        <button onclick="logout()" style="background:rgba(255,255,255,0.2);color:white;border:2px solid white;padding:8px 20px;border-radius:5px;cursor:pointer;font-weight:600;">Logout</button>
+    </header>
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item" onclick="navigateTo('/dashboard')">📊 Dashboard</div>
+            <div class="nav-item" onclick="navigateTo('/customers')">👥 Customers</div>
+            <div class="nav-item" onclick="navigateTo('/payments')">💳 Payments</div>
+            <div class="nav-item active">📈 Reports</div>
+            <div class="nav-item" onclick="navigateTo('/settings')">⚙️ Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="page-header"><h2>Reports</h2></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <p class="label">Total Customers</p>
+                    <strong>{{ stats['total'] }}</strong>
+                </div>
+                <div class="stat-card">
+                    <p class="label">Paid This Month</p>
+                    <strong>{{ stats['paid'] }}</strong>
+                </div>
+                <div class="stat-card">
+                    <p class="label">Unpaid This Month</p>
+                    <strong>{{ stats['unpaid'] }}</strong>
+                </div>
+                <div class="stat-card">
+                    <p class="label">Pending Reviews</p>
+                    <strong>{{ unmatched }}</strong>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Monthly Collection</h3>
+                <table>
+                    <thead>
+                        <tr><th>Month</th><th>Collection (₹)</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in monthly %}
+                        <tr>
+                            <td>{{ row['month'] }}</td>
+                            <td>{{ "%.2f"|format(row['total'] or 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="section">
+                <h3>Recent Payments</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in recent %}
+                        <tr>
+                            <td>{{ payment['payment_date'] }}</td>
+                            <td>{{ payment['customer_name'] or 'Unidentified' }}</td>
+                            <td>{{ payment['amount'] }}</td>
+                            <td>{{ payment['status'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        function navigateTo(page){window.location.href=page;}
+        function logout(){if(confirm('Are you sure you want to logout?'))window.location.href='/';}
+    </script>
+</body>
+</html>
